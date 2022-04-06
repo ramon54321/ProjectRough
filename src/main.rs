@@ -1,4 +1,5 @@
 use ggez::{
+    conf::{WindowSetup, WindowMode},
     event::run,
     event::EventHandler,
     graphics::{clear, present},
@@ -6,8 +7,8 @@ use ggez::{
 };
 
 mod game;
-mod render;
 mod logic;
+mod render;
 
 use game::Game;
 
@@ -25,7 +26,15 @@ impl EventHandler<GameError> for Game {
 }
 
 fn main() -> GameResult {
-    let context_builder = ContextBuilder::new("my_game", "ramon");
+    let context_builder = ContextBuilder::new("my_game", "ramon").window_setup(WindowSetup {
+        title: String::from("Project Rough"),
+        vsync: true,
+        ..Default::default()
+    }).window_mode(WindowMode {
+        width: 1280.0 * 2.0,
+        height: 720.0 * 2.0,
+        ..Default::default()
+    });
     let (ctx, event_loop) = context_builder.build()?;
     let game = Game::new()?;
     run(ctx, event_loop, game)
