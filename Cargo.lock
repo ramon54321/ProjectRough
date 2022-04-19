@@ -1235,6 +1235,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "logic"
+version = "0.1.0"
+dependencies = [
+ "state",
+]
+
+[[package]]
 name = "lyon"
 version = "0.17.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1992,6 +1999,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "render"
+version = "0.1.0"
+dependencies = [
+ "state",
+]
+
+[[package]]
 name = "rodio"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2010,6 +2024,9 @@ version = "0.1.0"
 dependencies = [
  "ggez",
  "glam",
+ "logic",
+ "render",
+ "state",
 ]
 
 [[package]]
@@ -2231,6 +2248,10 @@ dependencies = [
  "wayland-cursor",
  "wayland-protocols",
 ]
+
+[[package]]
+name = "state"
+version = "0.1.0"
 
 [[package]]
 name = "static_assertions"

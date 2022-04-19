@@ -1,13 +1,9 @@
 [package]
-name = "rough"
+name = "render"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ggez = "0.7"
-glam = "0.20.3"
-state = { path = "crates/state" }
-logic = { path = "crates/logic" }
-render = { path = "crates/render" }
+state = { path = "../state" }
