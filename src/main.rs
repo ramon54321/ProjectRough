@@ -39,6 +39,6 @@ fn main() -> GameResult {
             ..Default::default()
         });
     let (ctx, event_loop) = context_builder.build()?;
-    let game = Game::new()?;
+    let game = Game::new();
     run(ctx, event_loop, game)
 }
