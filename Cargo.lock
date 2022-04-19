@@ -1238,6 +1238,7 @@ dependencies = [
 name = "logic"
 version = "0.1.0"
 dependencies = [
+ "ggez",
  "state",
 ]
 
@@ -2002,6 +2003,8 @@ dependencies = [
 name = "render"
 version = "0.1.0"
 dependencies = [
+ "ggez",
+ "glam",
  "state",
 ]
 

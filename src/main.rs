@@ -5,10 +5,9 @@ use ggez::{
     graphics::{clear, present},
     Context, ContextBuilder, GameError, GameResult,
 };
+use logic::update;
+use render::render;
 use state::State;
-
-mod logic;
-mod render;
 
 struct Game {
     state: State,
@@ -25,12 +24,12 @@ impl Game {
 impl EventHandler<GameError> for Game {
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
-        render::render(ctx, &self.state)?;
+        render(ctx, &self.state)?;
         present(ctx)?;
         Ok(())
     }
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        logic::update(ctx, &mut self.state);
+        update(ctx, &mut self.state);
         Ok(())
     }
 }
