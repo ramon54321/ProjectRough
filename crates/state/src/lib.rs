@@ -1,8 +1,10 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+pub struct State {
+    pub x: f32,
+    pub y: f32,
+}
+
+impl State {
+    pub fn new() -> State {
+        State { x: 50.0, y: 50.0 }
     }
 }

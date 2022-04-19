@@ -5,22 +5,32 @@ use ggez::{
     graphics::{clear, present},
     Context, ContextBuilder, GameError, GameResult,
 };
+use state::State;
 
-mod game;
 mod logic;
 mod render;
 
-use game::Game;
+struct Game {
+    state: State,
+}
+
+impl Game {
+    fn new() -> Game {
+        Game {
+            state: State::new(),
+        }
+    }
+}
 
 impl EventHandler<GameError> for Game {
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
-        render::render(ctx, self)?;
+        render::render(ctx, &self.state)?;
         present(ctx)?;
         Ok(())
     }
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        logic::update(ctx, self);
+        logic::update(ctx, &mut self.state);
         Ok(())
     }
 }
