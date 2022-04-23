@@ -1239,6 +1239,7 @@ name = "logic"
 version = "0.1.0"
 dependencies = [
  "ggez",
+ "glam",
  "state",
 ]
 
@@ -2255,6 +2256,9 @@ dependencies = [
 [[package]]
 name = "state"
 version = "0.1.0"
+dependencies = [
+ "glam",
+]
 
 [[package]]
 name = "static_assertions"

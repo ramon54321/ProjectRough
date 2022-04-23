@@ -5,7 +5,7 @@ use ggez::{
     graphics::{clear, present},
     Context, ContextBuilder, GameError, GameResult,
 };
-use logic::update;
+use logic::{init, update};
 use render::render;
 use state::State;
 
@@ -48,6 +48,7 @@ fn main() -> GameResult {
             ..Default::default()
         });
     let (ctx, event_loop) = context_builder.build()?;
-    let game = Game::new();
+    let mut game = Game::new();
+    init(&ctx, &mut game.state);
     run(ctx, event_loop, game)
 }

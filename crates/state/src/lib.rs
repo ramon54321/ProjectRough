@@ -1,10 +1,21 @@
+use glam::Vec2;
+
+#[derive(Debug)]
 pub struct State {
-    pub x: f32,
-    pub y: f32,
+    pub entities: Vec<Entity>,
 }
 
 impl State {
     pub fn new() -> State {
-        State { x: 50.0, y: 50.0 }
+        State {
+            entities: Vec::new(),
+        }
     }
+}
+
+#[derive(Debug)]
+pub struct Entity {
+    pub id: usize,
+    pub position: Vec2,
+    pub velocity: Vec2,
 }

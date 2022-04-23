@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 ggez = "0.7" 
+glam = "0.20.3"
 state = { path = "../state" }
