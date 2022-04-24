@@ -5,7 +5,7 @@ use glam::Vec2;
 use state::State;
 
 pub fn render(ctx: &mut Context, state: &State) -> GameResult {
-    state.entities.iter().for_each(|entity| {
+    state.entities.iter().for_each(|(_, entity)| {
         let circle = Mesh::new_circle(
             ctx,
             ggez::graphics::DrawMode::fill(),

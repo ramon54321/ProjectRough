@@ -1,14 +1,16 @@
+use std::collections::HashMap;
+
 use glam::Vec2;
 
 #[derive(Debug)]
 pub struct State {
-    pub entities: Vec<Entity>,
+    pub entities: HashMap<String, Entity>,
 }
 
 impl State {
     pub fn new() -> State {
         State {
-            entities: Vec::new(),
+            entities: HashMap::new(),
         }
     }
 }
