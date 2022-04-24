@@ -17,7 +17,13 @@ impl State {
 
 #[derive(Debug)]
 pub struct Entity {
-    pub id: usize,
+    pub shape: Shape,
     pub position: Vec2,
     pub velocity: Vec2,
+}
+
+#[derive(Debug)]
+pub enum Shape {
+    Circle { radius: f32 },
+    Rectangle { width: f32, height: f32 },
 }

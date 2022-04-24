@@ -1,13 +1,16 @@
 use ggez::timer::delta;
 use ggez::{input, Context};
 use glam::Vec2;
-use state::{Entity, State};
+use state::{Entity, Shape, State};
 
 pub fn init(ctx: &Context, state: &mut State) {
     state.entities.insert(
-        String::from("ball"),
+        String::from("player"),
         Entity {
-            id: 0,
+            shape: Shape::Rectangle {
+                width: 40.0,
+                height: 160.0,
+            },
             position: Vec2::new(50.0, 50.0),
             velocity: Vec2::new(50.0, 50.0),
         },
