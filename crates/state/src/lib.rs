@@ -26,4 +26,5 @@ pub struct Entity {
 pub enum Shape {
     Circle { radius: f32 },
     Rectangle { width: f32, height: f32 },
+    Dome { radius: f32 },
 }

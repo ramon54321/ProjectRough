@@ -7,11 +7,8 @@ pub fn init(ctx: &Context, state: &mut State) {
     state.entities.insert(
         String::from("player"),
         Entity {
-            shape: Shape::Rectangle {
-                width: 40.0,
-                height: 160.0,
-            },
-            position: Vec2::new(50.0, 50.0),
+            shape: Shape::Dome { radius: 100.0 },
+            position: Vec2::new(300.0, 300.0),
             velocity: Vec2::default(),
         },
     );
@@ -32,10 +29,10 @@ fn update_physics(delta: f32, state: &mut State) {
 }
 
 fn update_constraints(state: &mut State) {
-    state
-        .entities
-        .get_mut(&String::from("player"))
-        .inspect_mut(|entity| entity.position.x = 50.0);
+    //state
+    //.entities
+    //.get_mut(&String::from("player"))
+    //.inspect_mut(|entity| entity.position.x = 50.0);
 }
 
 trait InspectMut<T> {
