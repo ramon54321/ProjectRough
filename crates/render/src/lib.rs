@@ -40,7 +40,7 @@ fn create_dome_points(n: usize) -> Vec<Vec2> {
     let mut points = Vec::with_capacity(n);
     for i in 0..n + 1 {
         let theta: f32 = PI - (i as f32 * (PI / n as f32));
-        let point = Vec2::new(theta.cos(), -theta.sin());
+        let point = Vec2::new(theta.cos(), theta.sin());
         points.push(point);
     }
     points
