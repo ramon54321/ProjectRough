@@ -20,6 +20,7 @@ pub struct Entity {
     pub shape: Shape,
     pub position: Vec2,
     pub velocity: Vec2,
+    pub impulse: Vec2,
 }
 
 #[derive(Debug)]
