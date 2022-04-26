@@ -11,8 +11,17 @@ pub fn init(ctx: &Context, state: &mut State) {
     state.entities.insert(
         String::from("player"),
         Entity {
-            shape: Shape::Dome { radius: 1.0 },
-            position: Vec2::new(0.0, 5.0),
+            shape: Shape::Dome { radius: 1.25 },
+            position: Vec2::new(-5.0, 5.0),
+            velocity: Vec2::default(),
+            impulse: Vec2::default(),
+        },
+    );
+    state.entities.insert(
+        String::from("opponent"),
+        Entity {
+            shape: Shape::Dome { radius: 1.25 },
+            position: Vec2::new(5.0, 5.0),
             velocity: Vec2::default(),
             impulse: Vec2::default(),
         },
@@ -29,22 +38,45 @@ pub fn update(ctx: &Context, state: &mut State) {
 }
 
 fn update_input(ctx: &Context, delta: f32, state: &mut State) {
+    let floor = -6.0;
+    let jump_velocity = 20.0;
+    let downdash_acceleration = 64.0;
+    let downdash_floor_buffer = 0.1;
+    let slide_velocity = 12.0;
     state.entities.get_mut("player").inspect_mut(|e| {
         if is_key_pressed(ctx, KeyCode::W) {
-            if e.position.y <= -5.9999 {
-                e.velocity.y = 20.0;
+            if e.position.y <= floor + 0.0001 {
+                e.velocity.y = jump_velocity;
             }
         }
         if is_key_pressed(ctx, KeyCode::S) {
-            if e.position.y > -6.1 {
-                e.velocity.y = e.velocity.y - 64.0 * delta;
+            if e.position.y > floor + downdash_floor_buffer {
+                e.velocity.y = e.velocity.y - downdash_acceleration * delta;
             }
         }
         if is_key_pressed(ctx, KeyCode::A) {
-            e.velocity.x = -12.0;
+            e.velocity.x = -slide_velocity;
         }
         if is_key_pressed(ctx, KeyCode::D) {
-            e.velocity.x = 12.0;
+            e.velocity.x = slide_velocity;
+        }
+    });
+    state.entities.get_mut("opponent").inspect_mut(|e| {
+        if is_key_pressed(ctx, KeyCode::Up) {
+            if e.position.y <= floor + 0.0001 {
+                e.velocity.y = jump_velocity;
+            }
+        }
+        if is_key_pressed(ctx, KeyCode::Down) {
+            if e.position.y > floor + downdash_floor_buffer {
+                e.velocity.y = e.velocity.y - downdash_acceleration * delta;
+            }
+        }
+        if is_key_pressed(ctx, KeyCode::Left) {
+            e.velocity.x = -slide_velocity;
+        }
+        if is_key_pressed(ctx, KeyCode::Right) {
+            e.velocity.x = slide_velocity;
         }
     });
 }
@@ -77,6 +109,11 @@ fn update_physics(delta: f32, state: &mut State) {
 
 fn update_constraints(state: &mut State) {
     state.entities.get_mut("player").inspect_mut(|entity| {
+        if entity.position.y < -6.0 {
+            entity.position.y = -6.0;
+        }
+    });
+    state.entities.get_mut("opponent").inspect_mut(|entity| {
         if entity.position.y < -6.0 {
             entity.position.y = -6.0;
         }
