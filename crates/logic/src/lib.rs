@@ -14,7 +14,6 @@ pub fn init(ctx: &Context, state: &mut State) {
             shape: Shape::Dome { radius: 1.25 },
             position: Vec2::new(-5.0, 5.0),
             velocity: Vec2::default(),
-            impulse: Vec2::default(),
         },
     );
     state.entities.insert(
@@ -23,7 +22,6 @@ pub fn init(ctx: &Context, state: &mut State) {
             shape: Shape::Dome { radius: 1.25 },
             position: Vec2::new(5.0, 5.0),
             velocity: Vec2::default(),
-            impulse: Vec2::default(),
         },
     );
     println!("{:?}", state);
