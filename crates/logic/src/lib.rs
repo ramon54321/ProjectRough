@@ -7,6 +7,8 @@ use ggez::{
 use glam::Vec2;
 use state::{Entity, Shape, State};
 
+const FLOOR_HEIGHT: f32 = -7.0;
+
 pub fn init(ctx: &Context, state: &mut State) {
     state.entities.insert(
         String::from("player"),
@@ -44,19 +46,18 @@ pub fn update(ctx: &Context, state: &mut State) {
 }
 
 fn update_input(ctx: &Context, delta: f32, state: &mut State) {
-    let floor = -6.0;
     let jump_velocity = 20.0;
     let downdash_acceleration = 64.0;
     let downdash_floor_buffer = 0.1;
     let slide_velocity = 12.0;
     state.entities.get_mut("player").inspect_mut(|e| {
         if is_key_pressed(ctx, KeyCode::W) {
-            if e.position.y <= floor + 0.0001 {
+            if e.position.y <= FLOOR_HEIGHT + 0.0001 {
                 e.velocity.y = jump_velocity;
             }
         }
         if is_key_pressed(ctx, KeyCode::S) {
-            if e.position.y > floor + downdash_floor_buffer {
+            if e.position.y > FLOOR_HEIGHT + downdash_floor_buffer {
                 e.velocity.y = e.velocity.y - downdash_acceleration * delta;
             }
         }
@@ -69,12 +70,12 @@ fn update_input(ctx: &Context, delta: f32, state: &mut State) {
     });
     state.entities.get_mut("opponent").inspect_mut(|e| {
         if is_key_pressed(ctx, KeyCode::Up) {
-            if e.position.y <= floor + 0.0001 {
+            if e.position.y <= FLOOR_HEIGHT + 0.0001 {
                 e.velocity.y = jump_velocity;
             }
         }
         if is_key_pressed(ctx, KeyCode::Down) {
-            if e.position.y > floor + downdash_floor_buffer {
+            if e.position.y > FLOOR_HEIGHT + downdash_floor_buffer {
                 e.velocity.y = e.velocity.y - downdash_acceleration * delta;
             }
         }
@@ -111,13 +112,25 @@ fn update_physics(delta: f32, state: &mut State) {
 
 fn update_constraints(state: &mut State) {
     state.entities.get_mut("player").inspect_mut(|entity| {
-        if entity.position.y < -6.0 {
-            entity.position.y = -6.0;
+        if entity.position.y < FLOOR_HEIGHT {
+            entity.position.y = FLOOR_HEIGHT;
+        }
+        if entity.position.x < -12.5 {
+            entity.position.x = -12.5;
+        }
+        if entity.position.x > -2.0 {
+            entity.position.x = -2.0;
         }
     });
     state.entities.get_mut("opponent").inspect_mut(|entity| {
-        if entity.position.y < -6.0 {
-            entity.position.y = -6.0;
+        if entity.position.y < FLOOR_HEIGHT {
+            entity.position.y = FLOOR_HEIGHT;
+        }
+        if entity.position.x > 12.5 {
+            entity.position.x = 12.5;
+        }
+        if entity.position.x < 2.0 {
+            entity.position.x = 2.0;
         }
     });
 }

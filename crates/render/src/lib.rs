@@ -11,6 +11,35 @@ pub fn render(ctx: &mut Context, state: &State) -> GameResult {
         let mesh = get_entity_mesh(ctx, entity).unwrap();
         graphics::draw(ctx, &mesh, DrawParam::default());
     });
+
+    // Floor
+    let floor_mesh = Mesh::new_rectangle(
+        ctx,
+        DrawMode::fill(),
+        Rect {
+            x: -20.0,
+            y: -7.0,
+            w: 40.0,
+            h: -5.0,
+        },
+        Color::WHITE,
+    )?;
+    graphics::draw(ctx, &floor_mesh, DrawParam::default())?;
+
+    // Net
+    let net_mesh = Mesh::new_rectangle(
+        ctx,
+        DrawMode::fill(),
+        Rect {
+            x: -0.5,
+            y: -2.0,
+            w: 1.0,
+            h: -10.0,
+        },
+        Color::WHITE,
+    )?;
+    graphics::draw(ctx, &net_mesh, DrawParam::default())?;
+
     Ok(())
 }
 
