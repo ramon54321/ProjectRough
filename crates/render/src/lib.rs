@@ -45,9 +45,15 @@ pub fn render(ctx: &mut Context, state: &State) -> GameResult {
 
 fn get_entity_mesh(ctx: &mut Context, entity: &Entity) -> Option<Mesh> {
     match entity.shape {
-        Shape::Circle { radius: r } => {
-            Mesh::new_circle(ctx, DrawMode::fill(), entity.position, r, 0.2, Color::WHITE).ok()
-        }
+        Shape::Circle { radius: r } => Mesh::new_circle(
+            ctx,
+            DrawMode::fill(),
+            entity.position,
+            r,
+            0.001,
+            Color::WHITE,
+        )
+        .ok(),
         Shape::Rectangle { .. } => Mesh::new_rectangle(
             ctx,
             DrawMode::fill(),

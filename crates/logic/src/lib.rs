@@ -133,6 +133,17 @@ fn update_constraints(state: &mut State) {
             entity.position.x = 2.0;
         }
     });
+    state.entities.get_mut("ball").inspect_mut(|entity| {
+        if entity.position.y < FLOOR_HEIGHT {
+            entity.position.y = FLOOR_HEIGHT;
+        }
+        if entity.position.x > 12.5 {
+            entity.position.x = 12.5;
+        }
+        if entity.position.x < -12.0 {
+            entity.position.x = -12.0;
+        }
+    });
 }
 
 trait InspectMut<T> {
