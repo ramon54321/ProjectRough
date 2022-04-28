@@ -38,7 +38,7 @@ fn main() -> GameResult {
     let context_builder = ContextBuilder::new("my_game", "ramon")
         .window_setup(WindowSetup {
             title: String::from("Project Rough"),
-            vsync: true,
+            vsync: false,
             samples: NumSamples::Four,
             ..Default::default()
         })

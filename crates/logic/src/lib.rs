@@ -12,7 +12,7 @@ pub fn init(ctx: &Context, state: &mut State) {
         String::from("player"),
         Entity {
             shape: Shape::Dome { radius: 1.25 },
-            position: Vec2::new(-5.0, 5.0),
+            position: Vec2::new(-5.0, 0.0),
             velocity: Vec2::default(),
         },
     );
@@ -20,7 +20,15 @@ pub fn init(ctx: &Context, state: &mut State) {
         String::from("opponent"),
         Entity {
             shape: Shape::Dome { radius: 1.25 },
-            position: Vec2::new(5.0, 5.0),
+            position: Vec2::new(5.0, 0.0),
+            velocity: Vec2::default(),
+        },
+    );
+    state.entities.insert(
+        String::from("ball"),
+        Entity {
+            shape: Shape::Circle { radius: 0.75 },
+            position: Vec2::new(-5.0, 6.0),
             velocity: Vec2::default(),
         },
     );
@@ -83,10 +91,6 @@ fn update_physics(delta: f32, state: &mut State) {
     let gravity = Vec2::new(0.0, -58.0);
     let horizontal_drag = 70.0;
     state.entities.iter_mut().for_each(|(_, entity)| {
-        if entity.impulse != Vec2::default() {
-            entity.velocity = entity.velocity + entity.impulse / delta;
-            entity.impulse = Vec2::default();
-        }
         // Gravity
         entity.velocity = entity.velocity + gravity * delta;
 

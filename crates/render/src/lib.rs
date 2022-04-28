@@ -6,6 +6,7 @@ use state::{Entity, Shape, State};
 use std::f32::consts::PI;
 
 pub fn render(ctx: &mut Context, state: &State) -> GameResult {
+    println!("{:?}", ggez::timer::fps(ctx));
     state.entities.iter().for_each(|(_, entity)| {
         let mesh = get_entity_mesh(ctx, entity).unwrap();
         graphics::draw(ctx, &mesh, DrawParam::default());
