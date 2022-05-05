@@ -8,12 +8,16 @@ use glam::Vec2;
 use state::{Entity, Shape, State};
 
 const FLOOR_HEIGHT: f32 = -7.0;
+const DOME_RADIUS: f32 = 1.25;
+const BALL_RADIUS: f32 = 0.75;
 
 pub fn init(ctx: &Context, state: &mut State) {
     state.entities.insert(
         String::from("player"),
         Entity {
-            shape: Shape::Dome { radius: 1.25 },
+            shape: Shape::Dome {
+                radius: DOME_RADIUS,
+            },
             position: Vec2::new(-5.0, 0.0),
             velocity: Vec2::default(),
         },
@@ -21,7 +25,9 @@ pub fn init(ctx: &Context, state: &mut State) {
     state.entities.insert(
         String::from("opponent"),
         Entity {
-            shape: Shape::Dome { radius: 1.25 },
+            shape: Shape::Dome {
+                radius: DOME_RADIUS,
+            },
             position: Vec2::new(5.0, 0.0),
             velocity: Vec2::default(),
         },
@@ -29,8 +35,10 @@ pub fn init(ctx: &Context, state: &mut State) {
     state.entities.insert(
         String::from("ball"),
         Entity {
-            shape: Shape::Circle { radius: 0.75 },
-            position: Vec2::new(-5.0, 6.0),
+            shape: Shape::Circle {
+                radius: BALL_RADIUS,
+            },
+            position: Vec2::new(-5.0, 4.0),
             velocity: Vec2::default(),
         },
     );
@@ -42,6 +50,8 @@ pub fn update(ctx: &Context, state: &mut State) {
     let mouse_position = input::mouse::position(ctx);
     update_input(ctx, delta, state);
     update_physics(delta, state);
+    update_constraints(state);
+    update_collisions(delta, state);
     update_constraints(state);
 }
 
@@ -107,43 +117,78 @@ fn update_physics(delta: f32, state: &mut State) {
             entity.velocity.x = 0.0;
         }
         entity.position = entity.position + entity.velocity * delta;
-    })
+    });
 }
 
 fn update_constraints(state: &mut State) {
     state.entities.get_mut("player").inspect_mut(|entity| {
         if entity.position.y < FLOOR_HEIGHT {
             entity.position.y = FLOOR_HEIGHT;
+            entity.velocity.y = 0.0;
         }
         if entity.position.x < -12.5 {
             entity.position.x = -12.5;
+            entity.velocity.x = 0.0;
         }
         if entity.position.x > -2.0 {
             entity.position.x = -2.0;
+            entity.velocity.x = 0.0;
         }
     });
     state.entities.get_mut("opponent").inspect_mut(|entity| {
         if entity.position.y < FLOOR_HEIGHT {
             entity.position.y = FLOOR_HEIGHT;
+            entity.velocity.y = 0.0;
         }
         if entity.position.x > 12.5 {
             entity.position.x = 12.5;
+            entity.velocity.x = 0.0;
         }
         if entity.position.x < 2.0 {
             entity.position.x = 2.0;
+            entity.velocity.x = 0.0;
         }
     });
     state.entities.get_mut("ball").inspect_mut(|entity| {
         if entity.position.y < FLOOR_HEIGHT {
             entity.position.y = FLOOR_HEIGHT;
+            entity.velocity.y = 0.0;
         }
         if entity.position.x > 12.5 {
             entity.position.x = 12.5;
+            entity.velocity.x = 0.0;
         }
         if entity.position.x < -12.0 {
             entity.position.x = -12.0;
+            entity.velocity.x = 0.0;
         }
     });
+}
+
+fn update_collisions(delta: f32, state: &mut State) {
+    let player_position = state.entities.get("player").map(|e| e.position).unwrap();
+    let opponent_position = state.entities.get("opponent").map(|e| e.position).unwrap();
+
+    let ball = state.entities.get_mut("ball").unwrap();
+    let vec_to_player = player_position - ball.position;
+    let vec_to_opponent = opponent_position - ball.position;
+
+    if vec_to_player.length() < DOME_RADIUS + BALL_RADIUS {
+        let normal_vec = -vec_to_player.clone().normalize();
+
+        let normal_vec = if normal_vec.is_nan() {
+            Vec2::new(0.0, 1.0)
+        } else {
+            normal_vec
+        };
+
+        ball.position = player_position + normal_vec * (DOME_RADIUS + BALL_RADIUS + 0.001);
+
+        let reflected_vec =
+            -ball.velocity - 2.0 * f32::max(ball.velocity.dot(normal_vec), 1.0) * normal_vec;
+
+        ball.velocity = reflected_vec;
+    }
 }
 
 trait InspectMut<T> {
