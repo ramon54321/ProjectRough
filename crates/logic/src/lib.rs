@@ -101,21 +101,25 @@ fn update_input(ctx: &Context, delta: f32, state: &mut State) {
 fn update_physics(delta: f32, state: &mut State) {
     let gravity = Vec2::new(0.0, -58.0);
     let horizontal_drag = 70.0;
-    state.entities.iter_mut().for_each(|(_, entity)| {
+    state.entities.iter_mut().for_each(|(name, entity)| {
         // Gravity
         entity.velocity = entity.velocity + gravity * delta;
 
         // Horizontal Drag
-        entity.velocity.x = if entity.velocity.x > 0.0 {
-            entity.velocity.x - horizontal_drag * delta
-        } else if entity.velocity.x < 0.0 {
-            entity.velocity.x + horizontal_drag * delta
-        } else {
-            entity.velocity.x
-        };
-        if entity.velocity.x < 0.8 && entity.velocity.x > -0.8 {
-            entity.velocity.x = 0.0;
+        if name != "ball" {
+            entity.velocity.x = if entity.velocity.x > 0.0 {
+                entity.velocity.x - horizontal_drag * delta
+            } else if entity.velocity.x < 0.0 {
+                entity.velocity.x + horizontal_drag * delta
+            } else {
+                entity.velocity.x
+            };
+            if entity.velocity.x < 0.8 && entity.velocity.x > -0.8 {
+                entity.velocity.x = 0.0;
+            }
         }
+
+        // Apply velocity
         entity.position = entity.position + entity.velocity * delta;
     });
 }
