@@ -192,7 +192,14 @@ fn update_collisions(delta: f32, state: &mut State) {
         let tangent_velocity = tangent_vec * relative_velocity.dot(tangent_vec);
         let perpendicular_velocity = relative_velocity - tangent_velocity;
         let reflected_velocity = ball.velocity - 2.0 * perpendicular_velocity;
-        ball.velocity = reflected_velocity.normalize_or_zero() * 18.0;
+        let reflected_velocity = if reflected_velocity.length() > 30.0 {
+            reflected_velocity.normalize_or_zero() * 30.0
+        } else if reflected_velocity.length() < 15.0 {
+            reflected_velocity.normalize_or_zero() * 15.0
+        } else {
+            reflected_velocity
+        };
+        ball.velocity = reflected_velocity * 1.0;
     }
 }
 
