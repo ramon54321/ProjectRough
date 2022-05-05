@@ -167,6 +167,7 @@ fn update_constraints(state: &mut State) {
 
 fn update_collisions(delta: f32, state: &mut State) {
     let player_position = state.entities.get("player").map(|e| e.position).unwrap();
+    let player_velocity = state.entities.get("player").map(|e| e.velocity).unwrap();
     let opponent_position = state.entities.get("opponent").map(|e| e.position).unwrap();
 
     let ball = state.entities.get_mut("ball").unwrap();
@@ -175,19 +176,21 @@ fn update_collisions(delta: f32, state: &mut State) {
 
     if vec_to_player.length() < DOME_RADIUS + BALL_RADIUS {
         let normal_vec = -vec_to_player.clone().normalize();
-
         let normal_vec = if normal_vec.is_nan() {
             Vec2::new(0.0, 1.0)
         } else {
             normal_vec
         };
-
+        let tangent_vec = Vec2::new(-normal_vec.y, normal_vec.x).normalize();
         ball.position = player_position + normal_vec * (DOME_RADIUS + BALL_RADIUS + 0.001);
-
-        let reflected_vec =
-            -ball.velocity - 2.0 * f32::max(ball.velocity.dot(normal_vec), 1.0) * normal_vec;
-
-        ball.velocity = reflected_vec;
+        let relative_velocity = Vec2::new(
+            ball.velocity.x - player_velocity.x,
+            ball.velocity.y - player_velocity.y,
+        );
+        let tangent_velocity = tangent_vec * relative_velocity.dot(tangent_vec);
+        let perpendicular_velocity = relative_velocity - tangent_velocity;
+        let reflected_velocity = ball.velocity - 2.0 * perpendicular_velocity;
+        ball.velocity = reflected_velocity.normalize_or_zero() * 18.0;
     }
 }
 
