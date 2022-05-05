@@ -4,7 +4,7 @@ use ggez::{
     input::keyboard::{is_key_pressed, KeyCode},
     Context,
 };
-use glam::Vec2;
+use glam::{bool, Vec2};
 use state::{Entity, Shape, State};
 
 const FLOOR_HEIGHT: f32 = -7.0;
@@ -175,12 +175,10 @@ fn update_collisions(delta: f32, state: &mut State) {
     let vec_to_opponent = opponent_position - ball.position;
 
     if vec_to_player.length() < DOME_RADIUS + BALL_RADIUS {
-        let normal_vec = -vec_to_player.clone().normalize();
-        let normal_vec = if normal_vec.is_nan() {
-            Vec2::new(0.0, 1.0)
-        } else {
-            normal_vec
-        };
+        let normal_vec = (-vec_to_player)
+            .clone()
+            .normalize()
+            .ensuring(|a| !a.is_nan(), || Vec2::new(0.0, 1.0));
         let tangent_vec = Vec2::new(-normal_vec.y, normal_vec.x).normalize();
         ball.position = player_position + normal_vec * (DOME_RADIUS + BALL_RADIUS + 0.001);
         let relative_velocity = Vec2::new(
@@ -191,6 +189,27 @@ fn update_collisions(delta: f32, state: &mut State) {
         let perpendicular_velocity = relative_velocity - tangent_velocity;
         let reflected_velocity = ball.velocity - 2.0 * perpendicular_velocity;
         ball.velocity = reflected_velocity.normalize_or_zero() * 18.0;
+    }
+}
+
+trait Ensuring {
+    fn ensuring<P, D>(&mut self, predicate: P, default: D) -> Self
+    where
+        P: Fn(&Self) -> bool,
+        D: Fn() -> Self;
+}
+
+impl<T: Clone> Ensuring for T {
+    fn ensuring<P, D>(&mut self, predicate: P, default: D) -> T
+    where
+        P: Fn(&T) -> bool,
+        D: Fn() -> T,
+    {
+        if predicate(&self) {
+            self.clone()
+        } else {
+            default()
+        }
     }
 }
 
