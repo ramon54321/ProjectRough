@@ -1,3 +1,5 @@
+use std::ops::Mul;
+
 use ggez::timer::delta;
 use ggez::{
     input,
@@ -8,7 +10,7 @@ use glam::{bool, Vec2};
 use state::{Entity, Shape, State};
 
 const FLOOR_HEIGHT: f32 = -7.0;
-const DOME_RADIUS: f32 = 1.25;
+const DOME_RADIUS: f32 = 1.75;
 const BALL_RADIUS: f32 = 0.75;
 
 pub fn init(ctx: &Context, state: &mut State) {
@@ -59,7 +61,7 @@ fn update_input(ctx: &Context, delta: f32, state: &mut State) {
     let jump_velocity = 20.0;
     let downdash_acceleration = 64.0;
     let downdash_floor_buffer = 0.1;
-    let slide_velocity = 12.0;
+    let slide_velocity = 20.0;
     state.entities.get_mut("player").inspect_mut(|e| {
         if is_key_pressed(ctx, KeyCode::W) {
             if e.position.y <= FLOOR_HEIGHT + 0.0001 {
@@ -99,8 +101,8 @@ fn update_input(ctx: &Context, delta: f32, state: &mut State) {
 }
 
 fn update_physics(delta: f32, state: &mut State) {
-    let gravity = Vec2::new(0.0, -58.0);
-    let horizontal_drag = 70.0;
+    let gravity = Vec2::new(0.0, -45.0);
+    let horizontal_drag = 125.0;
     state.entities.iter_mut().for_each(|(name, entity)| {
         // Gravity
         entity.velocity = entity.velocity + gravity * delta;
@@ -157,9 +159,12 @@ fn update_constraints(state: &mut State) {
         if entity.position.y < FLOOR_HEIGHT {
             entity.position.y = FLOOR_HEIGHT;
             entity.velocity.y = 0.0;
+
+            entity.position = Vec2::new(-5.0, 4.0);
+            entity.velocity = Vec2::default();
         }
-        if entity.position.x > 12.5 {
-            entity.position.x = 12.5;
+        if entity.position.x > 12.0 {
+            entity.position.x = 12.0;
             entity.velocity.x = 0.0;
         }
         if entity.position.x < -12.0 {
@@ -173,34 +178,53 @@ fn update_collisions(delta: f32, state: &mut State) {
     let player_position = state.entities.get("player").map(|e| e.position).unwrap();
     let player_velocity = state.entities.get("player").map(|e| e.velocity).unwrap();
     let opponent_position = state.entities.get("opponent").map(|e| e.position).unwrap();
+    let opponent_velocity = state.entities.get("opponent").map(|e| e.velocity).unwrap();
 
     let ball = state.entities.get_mut("ball").unwrap();
     let vec_to_player = player_position - ball.position;
     let vec_to_opponent = opponent_position - ball.position;
 
     if vec_to_player.length() < DOME_RADIUS + BALL_RADIUS {
-        let normal_vec = (-vec_to_player)
-            .clone()
-            .normalize()
-            .ensuring(|a| !a.is_nan(), || Vec2::new(0.0, 1.0));
-        let tangent_vec = Vec2::new(-normal_vec.y, normal_vec.x).normalize();
-        ball.position = player_position + normal_vec * (DOME_RADIUS + BALL_RADIUS + 0.001);
-        let relative_velocity = Vec2::new(
-            ball.velocity.x - player_velocity.x,
-            ball.velocity.y - player_velocity.y,
-        );
-        let tangent_velocity = tangent_vec * relative_velocity.dot(tangent_vec);
-        let perpendicular_velocity = relative_velocity - tangent_velocity;
-        let reflected_velocity = ball.velocity - 2.0 * perpendicular_velocity;
-        let reflected_velocity = if reflected_velocity.length() > 30.0 {
-            reflected_velocity.normalize_or_zero() * 30.0
-        } else if reflected_velocity.length() < 15.0 {
-            reflected_velocity.normalize_or_zero() * 15.0
-        } else {
-            reflected_velocity
-        };
-        ball.velocity = reflected_velocity * 1.0;
+        update_ball_collision(ball, &vec_to_player, &player_position, &player_velocity);
     }
+    if vec_to_opponent.length() < DOME_RADIUS + BALL_RADIUS {
+        update_ball_collision(
+            ball,
+            &vec_to_opponent,
+            &opponent_position,
+            &opponent_velocity,
+        );
+    }
+}
+
+fn update_ball_collision(
+    ball: &mut Entity,
+    vec_to_other: &Vec2,
+    other_position: &Vec2,
+    other_velocity: &Vec2,
+) {
+    let normal_vec = vec_to_other
+        .clone()
+        .mul(-1.0)
+        .normalize()
+        .ensuring(|a| !a.is_nan(), || Vec2::new(0.0, 1.0));
+    let tangent_vec = Vec2::new(-normal_vec.y, normal_vec.x).normalize();
+    ball.position = *other_position + normal_vec * (DOME_RADIUS + BALL_RADIUS + 0.001);
+    let relative_velocity = Vec2::new(
+        ball.velocity.x - other_velocity.x,
+        ball.velocity.y - other_velocity.y,
+    );
+    let tangent_velocity = tangent_vec * relative_velocity.dot(tangent_vec);
+    let perpendicular_velocity = relative_velocity - tangent_velocity;
+    let reflected_velocity = ball.velocity - 2.0 * perpendicular_velocity;
+    let reflected_velocity = if reflected_velocity.length() > 30.0 {
+        reflected_velocity.normalize_or_zero() * 30.0
+    } else if reflected_velocity.length() < 15.0 {
+        reflected_velocity.normalize_or_zero() * 15.0
+    } else {
+        reflected_velocity
+    };
+    ball.velocity = reflected_velocity * 1.2;
 }
 
 trait Ensuring {
