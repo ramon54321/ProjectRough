@@ -57,6 +57,16 @@ pub fn update(ctx: &Context, state: &mut State) {
     update_constraints(state);
 }
 
+fn score_ball(state: &mut State) -> Result<(), String> {
+  let ball_position = state.entities.get("ball").map(|ball| ball.position).ok_or("CAN_NOT_FIND_BALL")?;
+  if ball_position.x < 0.0 {
+    state.scores.0 = state.scores.0 + 1;
+  } else {
+    state.scores.1 = state.scores.1 + 1;
+  }
+  Ok(())
+}
+
 fn update_input(ctx: &Context, delta: f32, state: &mut State) {
     let jump_velocity = 20.0;
     let downdash_acceleration = 64.0;
@@ -156,10 +166,7 @@ fn update_constraints(state: &mut State) {
         }
     });
     state.entities.get_mut("ball").inspect_mut(|entity| {
-        if entity.position.y < FLOOR_HEIGHT {
-            entity.position.y = FLOOR_HEIGHT;
-            entity.velocity.y = 0.0;
-
+        if entity.position.y < FLOOR_HEIGHT + BALL_RADIUS{
             entity.position = Vec2::new(-5.0, 4.0);
             entity.velocity = Vec2::default();
         }
@@ -218,8 +225,7 @@ fn update_ball_collision(
     let perpendicular_velocity = relative_velocity - tangent_velocity;
     let reflected_velocity = ball.velocity - 2.0 * perpendicular_velocity;
     let reflected_velocity = if reflected_velocity.length() > 30.0 {
-        reflected_velocity.normalize_or_zero() * 30.0
-    } else if reflected_velocity.length() < 15.0 {
+        reflected_velocity.normalize_or_zero() * 30.0 } else if reflected_velocity.length() < 15.0 {
         reflected_velocity.normalize_or_zero() * 15.0
     } else {
         reflected_velocity

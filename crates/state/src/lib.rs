@@ -5,12 +5,14 @@ use glam::Vec2;
 #[derive(Debug)]
 pub struct State {
     pub entities: HashMap<String, Entity>,
+    pub scores: (isize, isize),
 }
 
 impl State {
     pub fn new() -> State {
         State {
             entities: HashMap::new(),
+            scores: (0, 0),
         }
     }
 }

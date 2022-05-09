@@ -48,17 +48,6 @@ fn main() -> GameResult {
             ..Default::default()
         });
     let (mut ctx, event_loop) = context_builder.build()?;
-    let screen_ratio = 1280.0 / 720.0;
-    graphics::set_screen_coordinates(
-        &mut ctx,
-        Rect {
-            x: -8.0 * screen_ratio,
-            y: 8.0,
-            w: 16.0 * screen_ratio,
-            h: -16.0,
-        },
-    )
-    .expect("Failed to set screen coordinates");
     let mut game = Game::new();
     init(&ctx, &mut game.state);
     run(ctx, event_loop, game)
