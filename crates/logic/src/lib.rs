@@ -9,6 +9,7 @@ use ggez::{
 use glam::{bool, Vec2};
 use state::{Entity, Shape, State};
 
+const MAXIMUM_FRAME_SECS: f32 = 1.0 / 15.0;
 const FLOOR_HEIGHT: f32 = -7.0;
 const DOME_RADIUS: f32 = 1.75;
 const BALL_RADIUS: f32 = 0.75;
@@ -20,7 +21,7 @@ pub fn init(ctx: &Context, state: &mut State) {
             shape: Shape::Dome {
                 radius: DOME_RADIUS,
             },
-            position: Vec2::new(-5.0, 0.0),
+            position: Vec2::new(-5.0, -6.0),
             velocity: Vec2::default(),
         },
     );
@@ -30,7 +31,7 @@ pub fn init(ctx: &Context, state: &mut State) {
             shape: Shape::Dome {
                 radius: DOME_RADIUS,
             },
-            position: Vec2::new(5.0, 0.0),
+            position: Vec2::new(5.0, -6.0),
             velocity: Vec2::default(),
         },
     );
@@ -40,7 +41,7 @@ pub fn init(ctx: &Context, state: &mut State) {
             shape: Shape::Circle {
                 radius: BALL_RADIUS,
             },
-            position: Vec2::new(-5.0, 4.0),
+            position: Vec2::new(-5.0, -2.0),
             velocity: Vec2::default(),
         },
     );
@@ -48,7 +49,7 @@ pub fn init(ctx: &Context, state: &mut State) {
 }
 
 pub fn update(ctx: &Context, state: &mut State) {
-    let delta = delta(ctx).as_secs_f32();
+    let delta = f32::min(MAXIMUM_FRAME_SECS, delta(ctx).as_secs_f32());
     let mouse_position = input::mouse::position(ctx);
     update_input(ctx, delta, state);
     update_physics(delta, state);
@@ -57,21 +58,22 @@ pub fn update(ctx: &Context, state: &mut State) {
     update_constraints(state);
 }
 
-fn score_ball(state: &mut State) -> Result<(), String> {
-  let ball_position = state.entities.get("ball").map(|ball| ball.position).ok_or("CAN_NOT_FIND_BALL")?;
-  if ball_position.x < 0.0 {
-    state.scores.0 = state.scores.0 + 1;
-  } else {
-    state.scores.1 = state.scores.1 + 1;
-  }
-  Ok(())
-}
+//fn score_ball(state: &mut State) -> Result<(), String> {
+//let ball_position = state.entities.get("ball").map(|ball| ball.position).ok_or("CAN_NOT_FIND_BALL")?;
+//if ball_position.x < 0.0 {
+//state.scores.0 = state.scores.0 + 1;
+//} else {
+//state.scores.1 = state.scores.1 + 1;
+//}
+//Ok(())
+//}
 
 fn update_input(ctx: &Context, delta: f32, state: &mut State) {
     let jump_velocity = 20.0;
     let downdash_acceleration = 64.0;
     let downdash_floor_buffer = 0.1;
     let slide_velocity = 20.0;
+    if 5 > 3 {}
     state.entities.get_mut("player").inspect_mut(|e| {
         if is_key_pressed(ctx, KeyCode::W) {
             if e.position.y <= FLOOR_HEIGHT + 0.0001 {
@@ -166,8 +168,13 @@ fn update_constraints(state: &mut State) {
         }
     });
     state.entities.get_mut("ball").inspect_mut(|entity| {
-        if entity.position.y < FLOOR_HEIGHT + BALL_RADIUS{
-            entity.position = Vec2::new(-5.0, 4.0);
+        if entity.position.y < FLOOR_HEIGHT + BALL_RADIUS {
+            if entity.position.x > 0.0 {
+                state.scores.0 = state.scores.0 + 1;
+            } else {
+                state.scores.1 = state.scores.1 + 1;
+            }
+            entity.position = Vec2::new(-5.0, -3.0);
             entity.velocity = Vec2::default();
         }
         if entity.position.x > 12.0 {
@@ -225,12 +232,13 @@ fn update_ball_collision(
     let perpendicular_velocity = relative_velocity - tangent_velocity;
     let reflected_velocity = ball.velocity - 2.0 * perpendicular_velocity;
     let reflected_velocity = if reflected_velocity.length() > 30.0 {
-        reflected_velocity.normalize_or_zero() * 30.0 } else if reflected_velocity.length() < 15.0 {
+        reflected_velocity.normalize_or_zero() * 30.0
+    } else if reflected_velocity.length() < 15.0 {
         reflected_velocity.normalize_or_zero() * 15.0
     } else {
         reflected_velocity
     };
-    ball.velocity = reflected_velocity * 1.2;
+    ball.velocity = reflected_velocity * 0.95;
 }
 
 trait Ensuring {
@@ -268,4 +276,3 @@ impl<T> InspectMut<T> for Option<T> {
         self.iter_mut().for_each(|i| callback(i));
     }
 }
-
